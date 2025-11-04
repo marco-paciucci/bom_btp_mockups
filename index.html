@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Workflow Dashboard Mockup</title>
+
+  <style>
+  .tileGreen {
+    background-color: #d4edda !important;  /* light green background */
+    border-radius: 0.75rem;                /* smooth rounded edges */
+  }
+
+  /* Ensure text and numbers remain readable on green background */
+  .tileGreen .sapMGTHeader,
+  .tileGreen .sapMGTHdrTxt,
+  .tileGreen .sapMGTTInfo,
+  .tileGreen .sapMNCValue,
+  .tileGreen .sapMNCTop {
+    color: #155724 !important; /* dark green text for contrast */
+  }
+</style>
+
+  <!-- ✅ UI5 bootstrap -->
+  <script
+    id="sap-ui-bootstrap"
+    src="https://sdk.openui5.org/resources/sap-ui-core.js"
+    data-sap-ui-theme="sap_fiori_3"
+    data-sap-ui-libs="sap.m,sap.ui.table,sap.ui.layout"
+    data-sap-ui-xx-bindingSyntax="complex"
+    data-sap-ui-compatVersion="edge"
+    data-sap-ui-preload="async">
+  </script>
+
+  <script>
+  sap.ui.getCore().attachInit(function () {
+
+    sap.ui.require([
+      "sap/m/App",
+      "sap/m/Page",
+      "sap/m/Label",
+      "sap/m/Input",
+      "sap/m/ComboBox",
+      "sap/m/DatePicker",
+      "sap/m/Button",
+      "sap/m/GenericTile",
+      "sap/m/TileContent",
+      "sap/m/NumericContent",
+      "sap/m/HBox",
+      "sap/ui/layout/Grid",
+      "sap/ui/table/Table",
+      "sap/ui/table/Column",
+      "sap/m/Text",
+      "sap/ui/model/json/JSONModel",
+      "sap/ui/core/Item",
+      "sap/m/IconTabBar",
+      "sap/m/IconTabFilter",
+      "sap/m/VBox"
+    ], function (
+      App, Page, Label, Input, ComboBox, DatePicker, Button,
+      GenericTile, TileContent, NumericContent, HBox,
+      Grid, Table, Column, Text, JSONModel, Item,
+      IconTabBar, IconTabFilter, VBox
+    ) {
+
+      // --- Mock KPI + Table Data ---
+      const workflowData = [
+        {
+          WorkflowID: "WF001",
+          PLMCode: "PLM-1001",
+          ERPCode: "ERP-2001",
+          MaterialType: "Raw Material",
+          StepStatus: "Pending Review",
+          UserID: "Marcin FELIKSIK",
+          Department: "PLM",
+          WFStartDate: "2025-10-28",
+          WFEndDate: "2025-10-30",
+          StepStartDateTime: "2025-10-28 08:15",
+          StepEndDateTime: "2025-10-28 08:30",
+          StepDuration: "15m",
+          WFDuration: "3h 20m",
+          DurationMD: "-"
+        },
+        {
+          WorkflowID: "",
+          PLMCode: "",
+          ERPCode: "",
+          MaterialType: "",
+          StepStatus: "Perform enrichment and submit for approval by PCM/AM",
+          UserID: "Marcin FELIKSIK",
+          Department: "PCM",
+          WFStartDate: "2025-10-28",
+          WFEndDate: "2025-10-30",
+          StepStartDateTime: "2025-10-28 09:00",
+          StepEndDateTime: "2025-10-28 10:00",
+          StepDuration: "1h",
+          WFDuration: "3h 20m",
+          DurationMD: "1h 15m"
+        },
+        {
+          WorkflowID: "",
+          PLMCode: "",
+          MaterialType: " ",
+          StepStatus: "Approve Recipe by MDM Team (Create BOM in SAP)",
+          UserID: "Wandy APRIYADI",
+          Department: "MDM",
+          WFStartDate: "2025-10-28",
+          WFEndDate: "2025-10-30",
+          StepStartDateTime: "2025-10-28 10:15",
+          StepEndDateTime: "2025-10-28 11:15",
+          StepDuration: "1h",
+          WFDuration: "3h 20m",
+          DurationMD: "45m"
+        },
+        {
+          WorkflowID: "",
+          PLMCode: "",
+          ERPCode: "",
+          MaterialType: " ",
+          StepStatus: "Final Confirmation for PV/Routing by Manufacturing Team",
+          UserID: "Marco PACIUCCI",
+          Department: "MDM",
+          WFStartDate: "2025-10-28",
+          WFEndDate: "2025-10-30",
+          StepStartDateTime: "2025-10-28 11:30",
+          StepEndDateTime: "2025-10-28 12:00",
+          StepDuration: "30m",
+          WFDuration: "3h 20m",
+          DurationMD: "20m"
+        },
+        {
+          WorkflowID: "WF002",
+          PLMCode: "PLM-1002",
+          ERPCode: "ERP-2002",
+          MaterialType: "Packaging",
+          StepStatus: "Rejected by MDM Review",
+          UserID: "Witalij CZARNULICZ",
+          Department: "QA",
+          WFStartDate: "2025-10-28",
+          WFEndDate: "2025-10-29",
+          StepStartDateTime: "2025-10-28 11:00",
+          StepEndDateTime: "2025-10-28 11:25",
+          StepDuration: "25m",
+          WFDuration: "4h 00m",
+          DurationMD: "1h 40m"
+        }
+      ];
+
+      // --- KPI Tiles ---
+      const kpiBox = new HBox({
+        justifyContent: "SpaceAround",
+        items: [
+          new GenericTile({
+            header: "Avg Total Workflow Processing Time",
+            tileContent: [new TileContent({
+              content: new NumericContent({ value: 3.4, unit: "hrs" })
+            })]
+          }),
+          new GenericTile({
+            header: "Average Processing Time – Step 2",
+            tileContent: [new TileContent({
+              content: new NumericContent({ value: 4, unit: "min" })
+            })]
+          }),
+          new GenericTile({
+            header: "Average Processing Time – Step 3",
+            tileContent: [new TileContent({
+              content: new NumericContent({ value: 5.5, unit: "min" })
+            })]
+          }),
+          new GenericTile({
+            header: "Average Processing Time – Step 4",
+            tileContent: [new TileContent({
+              content: new NumericContent({ value: 5.5, unit: "min" })
+            })]
+          }),
+          new GenericTile({
+            header: "Workflow Rejection Rate by MD (%)",
+            tileContent: [new TileContent({
+              content: new NumericContent({ value: 8, unit: "%" })
+            })]
+          }).addStyleClass("tileGreen")
+        ]
+      }).addStyleClass("sapUiSmallMargin");
+
+      // --- Filters ---
+      const filterGrid = new Grid({
+        defaultSpan: "L3 M6 S12",
+        hSpacing: 1,
+        vSpacing: 1,
+        content: [
+          new Label({ text: "WF ID:" }),
+          new Input({ placeholder: "Enter WF ID" }),
+          new Label({ text: "PLM Code:" }),
+          new Input({ showValueHelp: true, placeholder: "Search PLM Code" }),
+          new Label({ text: "ERP Code:" }),
+          new Input({ showValueHelp: true, placeholder: "Search ERP Code" }),
+          new Label({ text: "Step Status:" }),
+          new ComboBox({
+            placeholder: "Select Status",
+            items: [
+              new Item({ text: "Perform enrichment and submit for approval by PCM/AM" }),
+              new Item({ text: "Approve Recipe by MDM Team (Create BOM in SAP)" }),
+              new Item({ text: "Final Confirmation for PV/Routing by Manufacturing Team" }),
+              new Item({ text: "Rejected by MDM Review" })
+            ]
+          }),
+          new Label({ text: "WF Start Date:" }),
+          new DatePicker(),
+          new Label({ text: "WF End Date:" }),
+          new DatePicker(),
+          new Label({ text: "Material Type:" }),
+          new ComboBox({
+            placeholder: "Select Material Type",
+            items: [
+              new Item({ text: "Raw Material" }),
+              new Item({ text: "Packaging" }),
+              new Item({ text: "Finished Product" })
+            ]
+          }),
+          new Label({ text: "User ID:" }),
+          new Input({ placeholder: "Enter User ID" }),
+          new Label({ text: "Aggregation Period" }),
+          new ComboBox({
+            placeholder: "Select Agg. Period",
+            items: [
+              new Item({ text: "Daily" }),
+              new Item({ text: "Weekly" }),
+              new Item({ text: "Monthly" })
+            ]
+          }),
+          new HBox({
+            items: [
+              new Button({ text: "Apply Filters", type: "Emphasized" }),
+              new Button({ text: "Reset", type: "Transparent", class: "sapUiTinyMarginBegin" })
+            ]
+          })
+        ]
+      }).addStyleClass("sapUiSmallMarginBottom sapUiNoContentPadding");
+
+      // --- Table ---
+      const oTable = new Table({
+        title: "Workflow Details",
+        visibleRowCount: 5,
+        selectionMode: "None"
+      });
+
+      const columns = [
+        { label: "WF ID", prop: "WorkflowID" },
+        { label: "PLM Code", prop: "PLMCode" },
+        { label: "ERP Code", prop: "ERPCode" },
+        { label: "Material Type", prop: "MaterialType" },
+        { label: "Step Status", prop: "StepStatus" },
+        { label: "User ID", prop: "UserID" },
+        { label: "Department", prop: "Department" },
+        { label: "WF Start Date", prop: "WFStartDate" },
+        { label: "WF End Date", prop: "WFEndDate" },
+        { label: "Step Start Date Time", prop: "StepStartDateTime" },
+        { label: "Step End Date Time", prop: "StepEndDateTime" },
+        { label: "Step Duration", prop: "StepDuration" },
+        { label: "WF Duration", prop: "WFDuration" },
+        { label: "Duration MD", prop: "DurationMD" }
+      ];
+
+      columns.forEach(col => {
+        oTable.addColumn(new Column({
+          label: new Label({ text: col.label }),
+          template: new Text({ text: `{${col.prop}}` }),
+          sortProperty: col.prop,
+          filterProperty: col.prop
+        }));
+      });
+
+      const oModel = new JSONModel({ Workflows: workflowData });
+      oTable.setModel(oModel);
+      oTable.bindRows("/Workflows");
+
+      // --- Workflow Tab Content ---
+      const workflowContent = [filterGrid, kpiBox, oTable];
+
+   
+      
+       /* --- BOM Content --- */
+      const bomFilterGrid = new Grid({
+        defaultSpan: "L3 M6 S12",
+        content: [
+          new Label({ text: "WF Start Date:" }),
+          new DatePicker(),
+          new Label({ text: "WF End Date:" }),
+          new DatePicker()
+        ]
+      }).addStyleClass("sapUiSmallMarginBottom");
+
+      // Mock datasets per category
+      const bomDatasets = {
+        received: [
+          { PLMRecipe: "PLM-7001", ERPCode: "ERP-4001", AltNumber: "001", ValidFrom: "2025-09-21" },
+          { PLMRecipe: "PLM-7002", ERPCode: "ERP-4002", AltNumber: "002", ValidFrom: "2025-09-22" }
+        ],
+        wip: [
+          { PLMRecipe: "PLM-7101", ERPCode: "ERP-4101", AltNumber: "001", ValidFrom: "2025-09-25" },
+          { PLMRecipe: "PLM-7102", ERPCode: "ERP-4102", AltNumber: "003", ValidFrom: "2025-09-26" },
+          { PLMRecipe: "PLM-7103", ERPCode: "ERP-4103", AltNumber: "002", ValidFrom: "2025-09-27" }
+        ],
+        rejected: [
+          { PLMRecipe: "PLM-7201", ERPCode: "ERP-4201", AltNumber: "001", ValidFrom: "2025-09-10" },
+          { PLMRecipe: "PLM-7202", ERPCode: "ERP-4202", AltNumber: "001", ValidFrom: "2025-09-12" }
+        ],
+        created: [
+          { PLMRecipe: "PLM-7301", ERPCode: "ERP-4301", AltNumber: "001", ValidFrom: "2025-10-01" },
+          { PLMRecipe: "PLM-7302", ERPCode: "ERP-4302", AltNumber: "002", ValidFrom: "2025-10-02" },
+          { PLMRecipe: "PLM-7303", ERPCode: "ERP-4303", AltNumber: "001", ValidFrom: "2025-10-03" }
+        ],
+        failed: [
+          { PLMRecipe: "PLM-7401", ERPCode: "ERP-4401", AltNumber: "001", ValidFrom: "2025-10-05" }
+        ]
+      };
+
+      // Shared table
+      const bomTable = new Table({
+        title: "BOM Details",
+        visibleRowCount: 5,
+        selectionMode: "None",
+        visible: false
+      });
+
+      ["PLMRecipe", "ERPCode", "AltNumber", "ValidFrom"].forEach(prop => {
+        bomTable.addColumn(new Column({
+          label: new Label({ text: prop }),
+          template: new Text({ text: `{${prop}}` })
+        }));
+      });
+
+      const bomModel = new JSONModel({ BOMs: [] });
+      bomTable.setModel(bomModel);
+      bomTable.bindRows("/BOMs");
+
+      // Function to update table
+      function showBOMData(type) {
+        bomModel.setData({ BOMs: bomDatasets[type] });
+        bomTable.setVisible(true);
+      }
+
+      // KPI tiles with click events
+      const bomTiles = new HBox({
+        justifyContent: "SpaceAround",
+        items: [
+          new GenericTile({
+            header: "BOMs Received in BTP",
+            tileContent: [new TileContent({ content: new NumericContent({ value: 12 }) })]
+          }).addStyleClass("tileBlue").attachPress(() => showBOMData("received")),
+
+          new GenericTile({
+            header: "BOMs Still WIP",
+            tileContent: [new TileContent({ content: new NumericContent({ value: 8 }) })]
+          }).addStyleClass("tileYellow").attachPress(() => showBOMData("wip")),
+
+          new GenericTile({
+            header: "BOMs Rejected in BTP",
+            tileContent: [new TileContent({ content: new NumericContent({ value: 2 }) })]
+          }).addStyleClass("tileRed").attachPress(() => showBOMData("rejected")),
+
+          new GenericTile({
+            header: "BOMs Created in SAP",
+            tileContent: [new TileContent({ content: new NumericContent({ value: 15 }) })]
+          }).attachPress(() => showBOMData("created")),
+
+          new GenericTile({
+            header: "BOMs Failed in SAP",
+            tileContent: [new TileContent({ content: new NumericContent({ value: 3 }) })]
+          }).addStyleClass("tileGrey").attachPress(() => showBOMData("failed"))
+        ]
+      }).addStyleClass("sapUiSmallMarginBottom");
+
+      const bomContent = new VBox({
+        items: [bomFilterGrid, bomTiles, bomTable]
+      });
+
+      
+      
+
+      // --- IconTabBar with 2 tabs ---
+      const oIconTabBar = new IconTabBar({
+        expandable: false,
+        items: [
+          new IconTabFilter({
+            key: "workflow",
+            text: "Workflow Report",
+            icon: "sap-icon://activity-individual",
+            content: workflowContent
+          }),
+          new IconTabFilter({
+            key: "bom",
+            text: "BOM Report",
+            icon: "sap-icon://table-view",
+            content: [bomContent]
+          })
+        ]
+      });
+
+      // --- Main Page ---
+      const page = new Page({
+        title: "BTP Workflow Monitoring Dashboard",
+        content: [oIconTabBar]
+      });
+
+      new App({ pages: [page] }).placeAt("content");
+    });
+  });
+  </script>
+</head>
+<body class="sapUiBody" id="content"></body>
+</html>
